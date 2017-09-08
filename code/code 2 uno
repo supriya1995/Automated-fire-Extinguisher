@@ -1,0 +1,245 @@
+#include <Wire.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
+#include <LiquidCrystal.h>
+
+using namespace std;
+LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
+
+
+int motorpin3 = 3;                  //motor1
+int motorpin4 = 4;                  //motor2
+int motorpin6 = 6;                  //motor3
+int motorpin7 = 7;                  //motor4
+const int TEST_PIN = 10;
+int s,d,i,x,y,r,m,j;
+char arrdir[6][6] ={ 
+               {'a','s','a','r','a','a'},
+               {'a','a','a','a','a','r'},
+               {'a','a','a','a','a','a'},
+               {'a','a','a','a','s','a'},
+               {'a','a','l','a','a','a'},
+               {'a','a','s','a','a','a'}
+              }; 
+
+int arrdist[6][6] ={ 
+               {0 , 5 , 0 , 10 , 0 , 0},
+               {0 , 0 , 0 , 0  , 0 , 5},
+               {0 , 0 , 0 , 0  , 0 , 0},
+               {0 , 0 , 0 , 0  , 10, 0},
+               {0 , 0 , 5 , 0  , 0 , 0},
+               {0 , 0 , 5 , 0  , 0 , 0}
+                }; 
+
+
+static int count1 = 0;
+int arrpath[20];
+static int arr[10]; 
+static int count = 0;
+int xxxx= 0;
+
+
+void setup() {
+  Serial.begin(9600);           // start serial for output
+  pinMode(motorpin3,OUTPUT);        //set pin 3 as output
+  pinMode(motorpin4,OUTPUT);        
+  pinMode(motorpin6,OUTPUT);        //set pin 3 as output
+  pinMode(motorpin7,OUTPUT);        
+  
+  Wire.begin(8);                // join i2c bus with address #8
+  Wire.onReceive(receiveEvent);  // register event
+
+ 
+/*    
+for(int i = 0; i < count ; i++)
+    {
+     Serial.print(arrpath[i]);
+    }
+*/
+
+ 
+ /*for(int i = 0 ; i < 6 ; i++)
+  {
+    for(int j = 0 ; j< 6 ; j++)
+   {
+     Serial.print( arrdir[i][j]);
+   }     
+  Serial.println(' ');
+}*/
+
+Serial.println("now you can proceed");
+}
+
+void loop() {
+delay(5000);
+  
+  
+  
+  //Serial.println("SUPRIYA");
+if(xxxx-1 == arr[count-1]+1)
+{
+
+    //for(i =0 ; i< count ; i++)
+     //Serial.println(arr[i]);
+
+  
+  Serial.print("the path of xxxx is :: ");
+
+
+
+for(int i = 0 ; i < 4 ; i++)
+   {
+    
+     if(i == 0)
+     {
+       arrpath[count1] = arrdir[arr[i]][arr[i+1]];                   //------move
+           Serial.println(arrpath[count1++]);
+          
+       //code for move
+       digitalWrite(3,HIGH);
+       digitalWrite(4,LOW);
+       //digitalWrite(6,HIGH);
+       //digitalWrite(7,LOW);
+     continue;
+    //  delay(arrdist[arr[i]][arr[i+1]] * 5000);
+     
+   }
+     else{
+   
+    if(arrdir[arr[i]][arr[i+1]] == 's' && arrpath[count1 - 1] == 's')        // move
+     {
+       arrpath[count1] = 's'; 
+           Serial.println(arrpath[count1++]);
+
+       digitalWrite(3,HIGH);
+       digitalWrite(4,LOW);
+       //digitalWrite(6,HIGH);
+       //digitalWrite(7,LOW);
+ continue;
+    
+      // delay(arrdist[arr[i]][arr[i+1]] * 5000);
+           
+     }
+
+    
+     else if(arrdir[arr[i]][arr[i+1]] == 'r' && arrpath[count1 - 1] == 's')        //-----just rotate and move
+     {
+       arrpath[count1] = 'r';
+           Serial.println(arrpath[count1++]);
+
+       //code for rotate in right
+       digitalWrite(3,HIGH);
+       digitalWrite(4,LOW);
+      // digitalWrite(6,LOW);
+       //digitalWrite(7,LOW);
+       delay(5000);
+       //code for move
+       digitalWrite(3,HIGH);
+       digitalWrite(4,LOW);
+      // digitalWrite(6,HIGH);
+       //digitalWrite(7,LOW);
+    //   delay(arrdist[arr[i]][arr[i+1]] * 5000);
+      continue; 
+       
+     }
+
+     else if(arrdir[arr[i]][arr[i+1]] == 'l' && arrpath[count1 - 1] == 's')        //just rotate
+     {
+       arrpath[count1] = 'l';   
+           Serial.println(arrpath[count1++]);
+
+     }
+     
+
+    else if(arrdir[arr[i]][arr[i+1]] == 'r' && arrpath[count1 - 1] == 'r')        //just rotate
+     {
+       arrpath[count1] = 's';
+       Serial.println(arrpath[count1++]);
+       
+     }
+     
+    else if(arrdir[arr[i]][arr[i+1]] == 's' && arrpath[count1 - 1] == 'r')        //------just rotate  and move
+     {
+       arrpath[count1] = 'l';
+       Serial.println(arrpath[count1++]);
+  
+       //code for rotate
+       digitalWrite(3,LOW);
+       digitalWrite(4,LOW);
+       //digitalWrite(6,HIGH);
+       //digitalWrite(7,LOW);
+       delay(5000);
+       //code for move   
+        digitalWrite(3,HIGH);
+       digitalWrite(4,LOW);
+       //digitalWrite(6,HIGH);
+       //digitalWrite(7,LOW);
+       
+     //  delay(arrdist[arr[i]][arr[i+1]] * 5000);
+        continue;
+              
+     }
+
+    else if(arrdir[arr[i]][arr[i+1]] == 's' && arrpath[count1 - 1] == 'l')        //just rotate
+     {
+       arrpath[count1] = 'r';   
+       Serial.println(arrpath[count1++]);
+
+     }
+  
+     else if(arrdir[arr[i]][arr[i+1]] == 'l' && arrpath[count1 - 1] == 'l')        //just rotate
+     {
+       arrpath[count1] = 's';   
+       Serial.println(arrpath[count1++]);
+     }
+
+   }
+            
+       digitalWrite(3,LOW);
+       digitalWrite(4,LOW);
+       //digitalWrite(6,LOW);
+       //digitalWrite(7,LOW);
+//delay(2000);
+   } 
+
+
+/*for(int i = 0; i < count1 ; i++)
+    {
+    Serial.println(arrpath[i]);
+    }
+*/
+xxxx++;
+
+}
+
+
+
+
+  delay(100);
+}
+
+// function that executes whenever data is received from master
+// this function is registered as an event, see setup()
+
+void receiveEvent(int howMany) {
+//Serial.println(howMany);
+  while (1 < Wire.available()) { // loop through all but the last
+    char c = Wire.read(); // receive byte as a character
+    Serial.print(c);         // print the character
+  }
+  int x = Wire.read();    // receive byte as an integer
+  arr[count++] = x;
+
+  Serial.println(arr[count-1]);         // print the integer
+
+  //if((count-1) >= 1)
+    //{
+   //    Serial.println("aao kaam krein");
+   // }
+
+ xxxx++;
+  
+}
+
+
